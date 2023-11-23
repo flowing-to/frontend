@@ -54,13 +54,20 @@ const getComposById = async (compo_id: string) => {
   const response = await fetch(endpoint, options);
   const data = await response.json();
 
-  const result = [];
-  for (let index = 0; index < data.length; index++) {
-    const { id } = data[index];
-    const endpoint1 = `https://xegd-filk-1pjm.n7c.xano.io/api:gdLlipP9/private_component/${id}`;
-    const resp = await fetch(endpoint1, options);
-    const { code, name } = await resp.json();
-    result.push({ code, name });
-  }
+  const promises = data.map((row: any) => fetchData(row.id));
+  const result = await Promise.all(promises);
+
   return result;
 };
+
+async function fetchData(id: string) {
+  const options = {
+    method: "GET",
+    Headers: { "Content-Type": "application/json" },
+  };
+
+  const endpoint = `https://xegd-filk-1pjm.n7c.xano.io/api:gdLlipP9/private_component/${id}`;
+  const resp = await fetch(endpoint, options);
+  const { code, name } = await resp.json();
+  return { code, name };
+}
