@@ -20,6 +20,7 @@ window.Webflow.push(async () => {
     button.innerText = code.name;
     button.classList.add("create-acc-button");
     button.addEventListener("click", () => {
+      button.innerText = "Copied!";
       copyToClipboard(code.code);
     });
 
@@ -30,34 +31,25 @@ window.Webflow.push(async () => {
 const copyToClipboard = (payload: any) => {
   try {
     document.addEventListener("copy", (e) => {
-      e.clipboardData?.setData("application/json", JSON.stringify(payload));
+      e.clipboardData?.setData("application/json", payload);
       e.preventDefault();
     });
     document.execCommand("copy");
   } catch (e) {
   } finally {
     document.removeEventListener("copy", (e) => {
-      e.clipboardData?.setData("application/json", JSON.stringify(payload));
+      e.clipboardData?.setData("application/json", payload);
       e.preventDefault();
     });
   }
 };
 
 const getComposById = async (compo_id: string) => {
-  const endpoint = `https://xegd-filk-1pjm.n7c.xano.io/api:gdLlipP9/shared_asset/${compo_id}`;
+  const data = await fetchData(compo_id);
 
-  const options = {
-    method: "GET",
-    Headers: { "Content-Type": "application/json" },
-  };
-
-  const response = await fetch(endpoint, options);
-  const data = await response.json();
-
-  const promises = data.map((row: any) => fetchData(row.id));
-  const result = await Promise.all(promises);
-
-  return result;
+  return data.map(({ name, code }: any) => {
+    return { name, code };
+  });
 };
 
 async function fetchData(id: string) {
@@ -68,6 +60,5 @@ async function fetchData(id: string) {
 
   const endpoint = `https://xegd-filk-1pjm.n7c.xano.io/api:gdLlipP9/private_component/${id}`;
   const resp = await fetch(endpoint, options);
-  const { code, name } = await resp.json();
-  return { code, name };
+  return await resp.json();
 }

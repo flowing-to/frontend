@@ -1,1 +1,61 @@
-"use strict";(()=>{window.Webflow||(window.Webflow=[]);window.Webflow.push(async()=>{let n=".max-width-medium",t=document.querySelector(n);if(!t)return;let s=new URLSearchParams(window.location.search).get("id");if(!s)return;let c=await d(s);for(let o=0;o<c.length;o++){let i=c[o],a=document.createElement("button");a.innerText=i.name,a.classList.add("create-acc-button"),a.addEventListener("click",()=>{r(i.code)}),t.prepend(a)}});var r=n=>{try{document.addEventListener("copy",t=>{var e;(e=t.clipboardData)==null||e.setData("application/json",JSON.stringify(n)),t.preventDefault()}),document.execCommand("copy")}catch{}finally{document.removeEventListener("copy",t=>{var e;(e=t.clipboardData)==null||e.setData("application/json",JSON.stringify(n)),t.preventDefault()})}},d=async n=>{let t=`https://xegd-filk-1pjm.n7c.xano.io/api:gdLlipP9/shared_asset/${n}`,o=(await(await fetch(t,{method:"GET",Headers:{"Content-Type":"application/json"}})).json()).map(a=>p(a.id));return await Promise.all(o)};async function p(n){let t={method:"GET",Headers:{"Content-Type":"application/json"}},e=`https://xegd-filk-1pjm.n7c.xano.io/api:gdLlipP9/private_component/${n}`,s=await fetch(e,t),{code:c,name:o}=await s.json();return{code:c,name:o}}})();
+"use strict";
+(() => {
+  // bin/live-reload.js
+  new EventSource(`${"http://localhost:3000"}/esbuild`).addEventListener("change", () => location.reload());
+
+  // src/index.ts
+  window.Webflow ||= [];
+  window.Webflow.push(async () => {
+    const SELECTOR = ".max-width-medium";
+    const div = document.querySelector(SELECTOR);
+    if (!div)
+      return;
+    const urlSearchParams = new URLSearchParams(window.location.search);
+    const idValue = urlSearchParams.get("id");
+    if (!idValue)
+      return;
+    const allcode = await getComposById(idValue);
+    for (let index = 0; index < allcode.length; index++) {
+      const code = allcode[index];
+      const button = document.createElement("button");
+      button.innerText = code.name;
+      button.classList.add("create-acc-button");
+      button.addEventListener("click", () => {
+        button.innerText = "Copied!";
+        copyToClipboard(code.code);
+      });
+      div.prepend(button);
+    }
+  });
+  var copyToClipboard = (payload) => {
+    try {
+      document.addEventListener("copy", (e) => {
+        e.clipboardData?.setData("application/json", payload);
+        e.preventDefault();
+      });
+      document.execCommand("copy");
+    } catch (e) {
+    } finally {
+      document.removeEventListener("copy", (e) => {
+        e.clipboardData?.setData("application/json", payload);
+        e.preventDefault();
+      });
+    }
+  };
+  var getComposById = async (compo_id) => {
+    const data = await fetchData(compo_id);
+    return data.map(({ name, code }) => {
+      return { name, code };
+    });
+  };
+  async function fetchData(id) {
+    const options = {
+      method: "GET",
+      Headers: { "Content-Type": "application/json" }
+    };
+    const endpoint = `https://xegd-filk-1pjm.n7c.xano.io/api:gdLlipP9/private_component/${id}`;
+    const resp = await fetch(endpoint, options);
+    return await resp.json();
+  }
+})();
+//# sourceMappingURL=index.js.map
